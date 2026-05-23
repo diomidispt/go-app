@@ -1,0 +1,42 @@
+services:
+
+  db:                                    # the PostgreSQL database container
+    image: postgres:16                   # use the official PostgreSQL version 16 image from Docker Hub
+    container_name: pharma_db            # give it a name so it's easy to identify
+    environment:
+      POSTGRES_USER: ${DB_USER}          # read from .env file — never hardcoded
+      POSTGRES_PASSWORD: ${DB_PASSWORD}  # read from .env file — never hardcoded
+      POSTGRES_DB: ${DB_NAME}            # read from .env file — never hardcoded
+    ports:
+      - "5432:5432"                      # expose port 5432 so you can connect from your laptop too
+    volumes:
+      - pgdata:/var/lib/postgresql/data  # persist data so it survives container restarts
+
+  pgadmin:                               # pgAdmin UI — runs in the browser at http://localhost:5050
+    image: dpage/pgadmin4                 # official pgAdmin image
+    container_name: pharma_pgadmin
+    environment:
+      PGADMIN_DEFAULT_EMAIL: ${PGADMIN_EMAIL}       # your login email for pgAdmin
+      PGADMIN_DEFAULT_PASSWORD: ${PGADMIN_PASSWORD} # your login password for pgAdmin
+    ports:
+      - "5050:80"                         # open http://localhost:5050 in your browser
+    depends_on:
+      - db                               # start after the database is up
+
+  app:                                   # the Go API container
+    build: .                             # build using the Dockerfile in this folder (we create that later)
+    container_name: pharma_app
+    environment:
+      PORT: ${PORT}                      # read from .env file
+      DB_HOST: db                        # "db" is the name of the postgres service above — Docker resolves it
+      DB_PORT: ${DB_PORT}                # read from .env file
+      DB_USER: ${DB_USER}                # read from .env file
+      DB_PASSWORD: ${DB_PASSWORD}        # read from .env file
+      DB_NAME: ${DB_NAME}                # read from .env file
+    ports:
+      - "${PORT}:${PORT}"                # map the port from .env to the same port inside the container
+    depends_on:
+      - db                               # wait for the db container to start before starting the app
+
+volumes:
+  pgdata:                                # named volume — Docker manages where this data lives on disk
