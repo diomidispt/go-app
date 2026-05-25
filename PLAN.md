@@ -60,12 +60,21 @@ PostgreSQL (database)
 - [x] `cmd/api/main.go` — HTTP server with `/health` endpoint, configurable port
 - [x] `docker-compose.yml` — PostgreSQL + pgAdmin + app (app pending Dockerfile)
 - [x] `.env` — local secrets, gitignored
-- [ ] Connect Go to PostgreSQL (`internal/config/db.go`)
-- [ ] Write SQL migrations — create `medicines`, `patients`, `prescriptions` tables
-- [ ] `internal/model/` — define Go structs for each entity
-- [ ] `internal/repository/` — database queries (CRUD) for each entity
-- [ ] `internal/service/` — business logic (e.g. stock check before prescription)
-- [ ] `internal/handler/` — HTTP handlers and routes for each endpoint
+- [x] Connect Go to PostgreSQL (`internal/config/db.go`) + `godotenv` for local env loading
+- [x] SQL migrations — `medicines`, `patients`, `prescriptions` tables created and applied
+- [x] `internal/model/medicine.go` — Medicine struct
+- [x] `internal/repository/medicine.go` — CRUD queries for medicines
+- [ ] `internal/service/medicine.go` — business logic for medicines
+- [ ] `internal/handler/medicine.go` — HTTP handlers and routes for medicines
+- [ ] `internal/model/patient.go` — Patient struct
+- [ ] `internal/repository/patient.go` — CRUD queries for patients
+- [ ] `internal/service/patient.go` — business logic for patients
+- [ ] `internal/handler/patient.go` — HTTP handlers and routes for patients
+- [ ] `internal/model/prescription.go` — Prescription struct
+- [ ] `internal/repository/prescription.go` — CRUD queries for prescriptions
+- [ ] `internal/service/prescription.go` — business logic (stock check before creating)
+- [ ] `internal/handler/prescription.go` — HTTP handlers and routes for prescriptions
+- [ ] Wire all routes into `main.go`
 - [ ] Test all endpoints with Postman
 - [ ] `frontend/` — HTML pages that call the API
 - [ ] `Dockerfile` — containerise the Go app

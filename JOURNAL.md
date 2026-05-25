@@ -50,3 +50,48 @@ frontend/         ← HTML pages the browser loads
 - Connect Go to PostgreSQL (`internal/config/db.go`)
 - Write SQL migrations to create the `medicines`, `patients`, `prescriptions` tables
 - Build first endpoint: `GET /medicines`
+
+---
+
+## 25/05/2026
+
+### What we built today
+
+**`internal/config/db.go`**
+Connects Go to PostgreSQL. Reads the 5 DB credentials from environment variables, builds a DSN (connection string), opens the connection, and pings the database to confirm it's reachable. Returns the connection so the rest of the app can use it.
+
+**`godotenv` dependency**
+Installed `github.com/joho/godotenv` and added one line to `main.go` to automatically load the `.env` file when the app starts. Without this, Go couldn't see the DB credentials when run directly with `go run` (Docker Compose injects them automatically, but the terminal does not).
+
+**`golang-migrate` CLI**
+Installed the `migrate` CLI tool to manage database schema changes in a versioned, automated way. Each migration is a numbered pair of SQL files — `up` to apply, `down` to roll back. The tool tracks which migrations have already run in a `schema_migrations` table inside Postgres.
+
+**SQL migrations**
+Three migrations created and applied:
+- `000001_create_medicines` — `id`, `name`, `dosage`, `stock`, `price`
+- `000002_create_patients` — `id`, `name`, `date_of_birth`, `phone`, `email`
+- `000003_create_prescriptions` — `id`, `patient_id` (FK), `medicine_id` (FK), `date`, `instructions`
+
+Prescriptions references both patients and medicines via foreign keys — Postgres enforces these at the database level.
+
+**`internal/model/medicine.go`**
+A Go struct that mirrors the `medicines` table. Each field maps to a column. JSON tags control how the fields appear in API responses (`id`, `name`, `dosage`, `stock`, `price`).
+
+**`internal/repository/medicine.go`**
+All SQL queries for the medicines table: `GetAll`, `GetByID`, `Create`, `Update`, `Delete`. Uses `$1`, `$2` placeholders to prevent SQL injection. Uses `RETURNING id` after INSERT to get the auto-generated ID back from Postgres.
+
+### What is working
+- Go connects to PostgreSQL on startup
+- Three tables exist in the database: `medicines`, `patients`, `prescriptions`
+- Medicine model and repository layer are written
+
+### What is not done yet
+- `internal/service/medicine.go` — business logic
+- `internal/handler/medicine.go` — HTTP handlers and routes
+- Same model/repository/service/handler for patients and prescriptions
+- No endpoints wired up yet — Postman can only hit `/health`
+
+### Next
+- `internal/service/medicine.go` — business logic layer
+- `internal/handler/medicine.go` — wire up HTTP routes
+- Test `GET /medicines` in Postman with real data
