@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Prescriptions — PharmaMS</title>
+  <link rel="stylesheet" href="/style.css">
+</head>
+<body>
+
+  <nav>
+    <a href="/" class="brand">💊 PharmaMS <span>B2B</span></a>
+    <a href="/medicines.html" class="nav-link">Medicines</a>
+    <a href="/patients.html" class="nav-link">Patients</a>
+    <a href="/prescriptions.html" class="nav-link active">Prescriptions</a>
+  </nav>
+
+  <div class="container">
+    <div class="page-header">
+      <div>
+        <h1>Prescriptions</h1>
+        <p>Create and manage patient prescriptions</p>
+      </div>
+    </div>
+
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th>Patient ID</th>
+            <th>Medicine ID</th>
+            <th>Date</th>
+            <th>Instructions</th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody id="prescriptions-table">
+          <tr><td colspan="6" class="empty">Loading...</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="form-card">
+      <h2>Create New Prescription</h2>
+      <div id="msg" class="msg"></div>
+      <div class="form-grid">
+        <div class="form-group">
+          <label>Patient ID</label>
+          <input id="patient_id" type="number" placeholder="e.g. 1" min="1" />
+        </div>
+        <div class="form-group">
+          <label>Medicine ID</label>
+          <input id="medicine_id" type="number" placeholder="e.g. 1" min="1" />
+        </div>
+        <div class="form-group">
+          <label>Date</label>
+          <input id="date" type="date" />
+        </div>
+        <div class="form-group full">
+          <label>Instructions</label>
+          <input id="instructions" type="text" placeholder="e.g. Take one tablet twice a day with food" />
+        </div>
+      </div>
+      <div class="form-actions">
+        <button class="btn btn-primary" onclick="createPrescription()">Create Prescription</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    async function loadPrescriptions() {
+      const res  = await fetch('/prescriptions');
+      const data = await res.json();
+      const tbody = document.getElementById('prescriptions-table');
+
+      if (!data || data.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="6" class="empty">No prescriptions found. Create one below.</td></tr>';
+        return;
+      }
+
+      tbody.innerHTML = data.map(p => `
+        <tr>
+          <td style="color:var(--muted);font-size:13px">#${p.id}</td>
+          <td>Patient #${p.patient_id}</td>
+          <td>Medicine #${p.medicine_id}</td>
+          <td>${p.date}</td>
+          <td>${p.instructions}</td>
+          <td><button class="btn btn-danger" onclick="deletePrescription(${p.id})">Delete</button></td>
+        </tr>
+      `).join('');
+    }
+
+    async function createPrescription() {
+      const msg = document.getElementById('msg');
+      const body = {
+        patient_id:   parseInt(document.getElementById('patient_id').value),
+        medicine_id:  parseInt(document.getElementById('medicine_id').value),
+        date:         document.getElementById('date').value,
+        instructions: document.getElementById('instructions').value,
+      };
+
+      const res = await fetch('/prescriptions', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(body),
+      });
+
+      if (res.ok) {
+        msg.className = 'msg success';
+        msg.textContent = 'Prescription created successfully.';
+        ['patient_id','medicine_id','instructions'].forEach(id => document.getElementById(id).value = '');
+        loadPrescriptions();
+      } else {
+        const text = await res.text();
+        msg.className = 'msg error';
+        msg.textContent = text.trim(); // shows "cannot create prescription — medicine is out of stock"
+      }
+    }
+
+    async function deletePrescription(id) {
+      if (!confirm('Soft delete this prescription?')) return;
+      await fetch(`/prescriptions/${id}`, { method: 'DELETE' });
+      loadPrescriptions();
+    }
+
+    document.getElementById('date').valueAsDate = new Date();
+    loadPrescriptions();
+  </script>
+</body>
+</html>

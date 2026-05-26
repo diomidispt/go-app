@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Pharma — Management System</title>
+  <link rel="stylesheet" href="/style.css">
+</head>
+<body>
+
+  <nav>
+    <a href="/" class="brand">💊 PharmaMS <span>B2B</span></a>
+    <a href="/medicines.html" class="nav-link">Medicines</a>
+    <a href="/patients.html" class="nav-link">Patients</a>
+    <a href="/prescriptions.html" class="nav-link">Prescriptions</a>
+  </nav>
+
+  <div class="hero">
+    <h1>Pharmaceutical Management System</h1>
+    <p>Manage your medicine inventory, patient records, and prescriptions in one place — built for pharmacy professionals.</p>
+    <a href="/medicines.html" class="hero-btn">Get Started →</a>
+  </div>
+
+  <div class="stats">
+    <a href="/medicines.html" class="stat-card">
+      <div class="stat-icon blue">💊</div>
+      <div class="stat-info">
+        <div class="count" id="medicine-count">—</div>
+        <div class="label">Medicines in stock</div>
+      </div>
+    </a>
+    <a href="/patients.html" class="stat-card">
+      <div class="stat-icon teal">🧑‍⚕️</div>
+      <div class="stat-info">
+        <div class="count" id="patient-count">—</div>
+        <div class="label">Registered patients</div>
+      </div>
+    </a>
+    <a href="/prescriptions.html" class="stat-card">
+      <div class="stat-icon amber">📋</div>
+      <div class="stat-info">
+        <div class="count" id="prescription-count">—</div>
+        <div class="label">Active prescriptions</div>
+      </div>
+    </a>
+  </div>
+
+  <div class="quick-links">
+    <h2>Quick Actions</h2>
+    <div class="link-grid">
+      <a href="/medicines.html" class="link-card">
+        <h3>➕ Add Medicine</h3>
+        <p>Register a new medicine with dosage, stock, and pricing</p>
+      </a>
+      <a href="/patients.html" class="link-card">
+        <h3>➕ Add Patient</h3>
+        <p>Register a new patient with contact information</p>
+      </a>
+      <a href="/prescriptions.html" class="link-card">
+        <h3>📋 New Prescription</h3>
+        <p>Create a prescription linking a patient to a medicine</p>
+      </a>
+    </div>
+  </div>
+
+  <script>
+    async function loadCounts() {
+      const [meds, patients, prescriptions] = await Promise.all([
+        fetch('/medicines').then(r => r.json()),
+        fetch('/patients').then(r => r.json()),
+        fetch('/prescriptions').then(r => r.json()),
+      ]);
+      document.getElementById('medicine-count').textContent     = meds?.length ?? 0;
+      document.getElementById('patient-count').textContent      = patients?.length ?? 0;
+      document.getElementById('prescription-count').textContent = prescriptions?.length ?? 0;
+    }
+    loadCounts();
+  </script>
+
+</body>
+</html>

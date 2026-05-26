@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Medicines — PharmaMS</title>
+  <link rel="stylesheet" href="/style.css">
+</head>
+<body>
+
+  <nav>
+    <a href="/" class="brand">💊 PharmaMS <span>B2B</span></a>
+    <a href="/medicines.html" class="nav-link active">Medicines</a>
+    <a href="/patients.html" class="nav-link">Patients</a>
+    <a href="/prescriptions.html" class="nav-link">Prescriptions</a>
+  </nav>
+
+  <div class="container">
+    <div class="page-header">
+      <div>
+        <h1>Medicines</h1>
+        <p>Manage your medicine inventory</p>
+      </div>
+    </div>
+
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th>Name</th>
+            <th>Dosage</th>
+            <th>Stock</th>
+            <th>Price</th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody id="medicines-table">
+          <tr><td colspan="6" class="empty">Loading...</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="form-card">
+      <h2>Add New Medicine</h2>
+      <div id="msg" class="msg"></div>
+      <div class="form-grid">
+        <div class="form-group">
+          <label>Medicine Name</label>
+          <input id="name" type="text" placeholder="e.g. Ibuprofen" />
+        </div>
+        <div class="form-group">
+          <label>Dosage</label>
+          <input id="dosage" type="text" placeholder="e.g. 400mg" />
+        </div>
+        <div class="form-group">
+          <label>Stock Quantity</label>
+          <input id="stock" type="number" placeholder="e.g. 100" min="0" />
+        </div>
+        <div class="form-group">
+          <label>Price (€)</label>
+          <input id="price" type="number" placeholder="e.g. 2.99" step="0.01" min="0" />
+        </div>
+      </div>
+      <div class="form-actions">
+        <button class="btn btn-primary" onclick="createMedicine()">Add Medicine</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    async function loadMedicines() {
+      const res  = await fetch('/medicines');
+      const data = await res.json();
+      const tbody = document.getElementById('medicines-table');
+
+      if (!data || data.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="6" class="empty">No medicines found. Add one below.</td></tr>';
+        return;
+      }
+
+      tbody.innerHTML = data.map(m => `
+        <tr>
+          <td style="color:var(--muted);font-size:13px">#${m.id}</td>
+          <td><strong>${m.name}</strong></td>
+          <td>${m.dosage}</td>
+          <td>
+            <span class="badge ${m.stock > 0 ? 'badge-green' : 'badge-red'}">
+              ${m.stock > 0 ? m.stock + ' units' : 'Out of stock'}
+            </span>
+          </td>
+          <td>€${m.price.toFixed(2)}</td>
+          <td><button class="btn btn-danger" onclick="deleteMedicine(${m.id})">Delete</button></td>
+        </tr>
+      `).join('');
+    }
+
+    async function createMedicine() {
+      const msg = document.getElementById('msg');
+      const body = {
+        name:   document.getElementById('name').value,
+        dosage: document.getElementById('dosage').value,
+        stock:  parseInt(document.getElementById('stock').value),
+        price:  parseFloat(document.getElementById('price').value),
+      };
+
+      const res = await fetch('/medicines', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(body),
+      });
+
+      if (res.ok) {
+        msg.className = 'msg success';
+        msg.textContent = 'Medicine added successfully.';
+        ['name','dosage','stock','price'].forEach(id => document.getElementById(id).value = '');
+        loadMedicines();
+      } else {
+        msg.className = 'msg error';
+        msg.textContent = 'Failed to add medicine. Please fill in all fields.';
+      }
+    }
+
+    async function deleteMedicine(id) {
+      if (!confirm('Soft delete this medicine?')) return;
+      await fetch(`/medicines/${id}`, { method: 'DELETE' });
+      loadMedicines();
+    }
+
+    loadMedicines();
+  </script>
+</body>
+</html>

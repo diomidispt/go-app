@@ -1,0 +1,296 @@
+{
+	"info": {
+		"name": "Pharma API",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "Health",
+			"item": [
+				{
+					"name": "GET health",
+					"request": {
+						"method": "GET",
+						"url": {
+							"raw": "http://localhost:8080/health",
+							"protocol": "http",
+							"host": ["localhost"],
+							"port": "8080",
+							"path": ["health"]
+						}
+					}
+				}
+			]
+		},
+		{
+			"name": "Medicines",
+			"item": [
+				{
+					"name": "GET all medicines",
+					"request": {
+						"method": "GET",
+						"url": {
+							"raw": "http://localhost:8080/medicines",
+							"protocol": "http",
+							"host": ["localhost"],
+							"port": "8080",
+							"path": ["medicines"]
+						}
+					}
+				},
+				{
+					"name": "GET medicine by ID",
+					"request": {
+						"method": "GET",
+						"url": {
+							"raw": "http://localhost:8080/medicines/1",
+							"protocol": "http",
+							"host": ["localhost"],
+							"port": "8080",
+							"path": ["medicines", "1"]
+						}
+					}
+				},
+				{
+					"name": "POST create medicine",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"name\": \"Ibuprofen\",\n  \"dosage\": \"400mg\",\n  \"stock\": 100,\n  \"price\": 2.99\n}"
+						},
+						"url": {
+							"raw": "http://localhost:8080/medicines",
+							"protocol": "http",
+							"host": ["localhost"],
+							"port": "8080",
+							"path": ["medicines"]
+						}
+					}
+				},
+				{
+					"name": "PUT update medicine",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"name\": \"Ibuprofen\",\n  \"dosage\": \"600mg\",\n  \"stock\": 80,\n  \"price\": 3.49\n}"
+						},
+						"url": {
+							"raw": "http://localhost:8080/medicines/1",
+							"protocol": "http",
+							"host": ["localhost"],
+							"port": "8080",
+							"path": ["medicines", "1"]
+						}
+					}
+				},
+				{
+					"name": "DELETE medicine (soft delete)",
+					"request": {
+						"method": "DELETE",
+						"url": {
+							"raw": "http://localhost:8080/medicines/1",
+							"protocol": "http",
+							"host": ["localhost"],
+							"port": "8080",
+							"path": ["medicines", "1"]
+						}
+					}
+				}
+			]
+		},
+		{
+			"name": "Patients",
+			"item": [
+				{
+					"name": "GET all patients",
+					"request": {
+						"method": "GET",
+						"url": {
+							"raw": "http://localhost:8080/patients",
+							"protocol": "http",
+							"host": ["localhost"],
+							"port": "8080",
+							"path": ["patients"]
+						}
+					}
+				},
+				{
+					"name": "GET patient by ID",
+					"request": {
+						"method": "GET",
+						"url": {
+							"raw": "http://localhost:8080/patients/1",
+							"protocol": "http",
+							"host": ["localhost"],
+							"port": "8080",
+							"path": ["patients", "1"]
+						}
+					}
+				},
+				{
+					"name": "POST create patient",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"name\": \"John Doe\",\n  \"date_of_birth\": \"1990-05-15\",\n  \"phone\": \"+35799123456\",\n  \"email\": \"john.doe@example.com\"\n}"
+						},
+						"url": {
+							"raw": "http://localhost:8080/patients",
+							"protocol": "http",
+							"host": ["localhost"],
+							"port": "8080",
+							"path": ["patients"]
+						}
+					}
+				},
+				{
+					"name": "PUT update patient",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"name\": \"John Doe\",\n  \"date_of_birth\": \"1990-05-15\",\n  \"phone\": \"+35799999999\",\n  \"email\": \"john.updated@example.com\"\n}"
+						},
+						"url": {
+							"raw": "http://localhost:8080/patients/1",
+							"protocol": "http",
+							"host": ["localhost"],
+							"port": "8080",
+							"path": ["patients", "1"]
+						}
+					}
+				},
+				{
+					"name": "DELETE patient (soft delete)",
+					"request": {
+						"method": "DELETE",
+						"url": {
+							"raw": "http://localhost:8080/patients/1",
+							"protocol": "http",
+							"host": ["localhost"],
+							"port": "8080",
+							"path": ["patients", "1"]
+						}
+					}
+				}
+			]
+		},
+		{
+			"name": "Prescriptions",
+			"item": [
+				{
+					"name": "GET all prescriptions",
+					"request": {
+						"method": "GET",
+						"url": {
+							"raw": "http://localhost:8080/prescriptions",
+							"protocol": "http",
+							"host": ["localhost"],
+							"port": "8080",
+							"path": ["prescriptions"]
+						}
+					}
+				},
+				{
+					"name": "GET prescription by ID",
+					"request": {
+						"method": "GET",
+						"url": {
+							"raw": "http://localhost:8080/prescriptions/1",
+							"protocol": "http",
+							"host": ["localhost"],
+							"port": "8080",
+							"path": ["prescriptions", "1"]
+						}
+					}
+				},
+				{
+					"name": "POST create prescription (fails if stock is 0)",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"patient_id\": 1,\n  \"medicine_id\": 1,\n  \"date\": \"2026-05-26\",\n  \"instructions\": \"Take one tablet twice a day with food\"\n}"
+						},
+						"url": {
+							"raw": "http://localhost:8080/prescriptions",
+							"protocol": "http",
+							"host": ["localhost"],
+							"port": "8080",
+							"path": ["prescriptions"]
+						}
+					}
+				},
+				{
+					"name": "PUT update prescription",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"patient_id\": 1,\n  \"medicine_id\": 1,\n  \"date\": \"2026-05-26\",\n  \"instructions\": \"Take one tablet three times a day after meals\"\n}"
+						},
+						"url": {
+							"raw": "http://localhost:8080/prescriptions/1",
+							"protocol": "http",
+							"host": ["localhost"],
+							"port": "8080",
+							"path": ["prescriptions", "1"]
+						}
+					}
+				},
+				{
+					"name": "DELETE prescription (soft delete)",
+					"request": {
+						"method": "DELETE",
+						"url": {
+							"raw": "http://localhost:8080/prescriptions/1",
+							"protocol": "http",
+							"host": ["localhost"],
+							"port": "8080",
+							"path": ["prescriptions", "1"]
+						}
+					}
+				}
+			]
+		}
+	]
+}

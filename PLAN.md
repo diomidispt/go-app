@@ -64,21 +64,27 @@ PostgreSQL (database)
 - [x] SQL migrations — `medicines`, `patients`, `prescriptions` tables created and applied
 - [x] `internal/model/medicine.go` — Medicine struct
 - [x] `internal/repository/medicine.go` — CRUD queries for medicines
-- [ ] `internal/service/medicine.go` — business logic for medicines
-- [ ] `internal/handler/medicine.go` — HTTP handlers and routes for medicines
-- [ ] `internal/model/patient.go` — Patient struct
-- [ ] `internal/repository/patient.go` — CRUD queries for patients
-- [ ] `internal/service/patient.go` — business logic for patients
-- [ ] `internal/handler/patient.go` — HTTP handlers and routes for patients
-- [ ] `internal/model/prescription.go` — Prescription struct
-- [ ] `internal/repository/prescription.go` — CRUD queries for prescriptions
-- [ ] `internal/service/prescription.go` — business logic (stock check before creating)
-- [ ] `internal/handler/prescription.go` — HTTP handlers and routes for prescriptions
-- [ ] Wire all routes into `main.go`
-- [ ] Test all endpoints with Postman
-- [ ] `frontend/` — HTML pages that call the API
-- [ ] `Dockerfile` — containerise the Go app
-- [ ] Run full stack with `docker-compose up` (app + db + pgadmin)
+- [x] `internal/service/medicine.go` — business logic for medicines
+- [x] `internal/handler/medicine.go` — HTTP handlers and routes for medicines
+- [x] `internal/model/patient.go` — Patient struct
+- [x] `internal/repository/patient.go` — CRUD queries for patients
+- [x] `internal/service/patient.go` — business logic for patients
+- [x] `internal/handler/patient.go` — HTTP handlers and routes for patients
+- [x] `internal/model/prescription.go` — Prescription struct
+- [x] `internal/repository/prescription.go` — CRUD queries for prescriptions
+- [x] `internal/service/prescription.go` — business logic (stock check before creating)
+- [x] `internal/handler/prescription.go` — HTTP handlers and routes for prescriptions
+- [x] `internal/app/app.go` — dependency injection, all wiring in one place
+- [x] Soft delete on all three entities (migrations 000004, 000005, 000006)
+- [x] Wire all routes into app.go + main.go
+- [x] Test all endpoints with Postman (`postman/pharma-api.json`)
+- [x] `Dockerfile` — multi-stage build, Alpine runtime, non-root user
+- [x] Wire app service into `docker-compose.yml`
+- [x] Auto migrations on startup (`internal/config/migrate.go`)
+- [x] Run full stack with `docker-compose up` (app + db + pgadmin)
+- [x] `frontend/` — B2B HTML UI, live stat cards, forms, tables, soft delete with confirm
+
+**Phase 1 complete ✅**
 
 ## Phase 2 — Cloud (terraform-sauron + ECS)
 

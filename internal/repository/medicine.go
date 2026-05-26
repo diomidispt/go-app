@@ -18,9 +18,9 @@ func NewMedicineRepository(db *sql.DB) *MedicineRepository {
 	return &MedicineRepository{db: db}
 }
 
-// GetAll returns every medicine from the database
+// GetAll returns every medicine that has not been soft deleted
 func (r *MedicineRepository) GetAll() ([]model.Medicine, error) {
-	rows, err := r.db.Query("SELECT id, name, dosage, stock, price FROM medicines")
+	rows, err := r.db.Query("SELECT id, name, dosage, stock, price FROM medicines WHERE deleted_at IS NULL")
 	if err != nil {
 		return nil, err
 	}
@@ -35,10 +35,10 @@ func (r *MedicineRepository) GetAll() ([]model.Medicine, error) {
 	return medicines, nil
 }
 
-// GetByID returns a single medicine by its ID
+// GetByID returns a single medicine by ID — only if it has not been soft deleted
 func (r *MedicineRepository) GetByID(id int) (model.Medicine, error) {
 	var m model.Medicine
-	row := r.db.QueryRow("SELECT id, name, dosage, stock, price FROM medicines WHERE id = $1", id) // $1 is a placeholder — prevents SQL injection
+	row := r.db.QueryRow("SELECT id, name, dosage, stock, price FROM medicines WHERE id = $1 AND deleted_at IS NULL", id)
 	err := row.Scan(&m.ID, &m.Name, &m.Dosage, &m.Stock, &m.Price)
 	return m, err
 }
@@ -55,14 +55,14 @@ func (r *MedicineRepository) Create(m model.Medicine) (model.Medicine, error) {
 // Update modifies an existing medicine by ID
 func (r *MedicineRepository) Update(m model.Medicine) error {
 	_, err := r.db.Exec(
-		"UPDATE medicines SET name=$1, dosage=$2, stock=$3, price=$4 WHERE id=$5",
+		"UPDATE medicines SET name=$1, dosage=$2, stock=$3, price=$4 WHERE id=$5 AND deleted_at IS NULL",
 		m.Name, m.Dosage, m.Stock, m.Price, m.ID,
 	)
 	return err
 }
 
-// Delete removes a medicine by ID
+// Delete soft deletes a medicine by setting deleted_at to the current time — the row stays in the database
 func (r *MedicineRepository) Delete(id int) error {
-	_, err := r.db.Exec("DELETE FROM medicines WHERE id = $1", id)
+	_, err := r.db.Exec("UPDATE medicines SET deleted_at = NOW() WHERE id = $1", id)
 	return err
 }
