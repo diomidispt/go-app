@@ -5,6 +5,7 @@ import (
 	"net/http"     // for the static file server
 
 	"github.com/go-chi/chi/v5"                          // the router
+	"github.com/go-chi/chi/v5/middleware"               // request logging and request ID
 	"github.com/diomidispt/go-app/internal/handler"    // HTTP handlers
 	"github.com/diomidispt/go-app/internal/repository" // SQL queries
 	"github.com/diomidispt/go-app/internal/service"    // business logic
@@ -19,6 +20,10 @@ type App struct {
 // every new entity (patients, prescriptions) gets added here — main.go never changes
 func New(db *sql.DB) *App {
 	r := chi.NewRouter()
+
+	// middleware — runs on every request before it reaches any handler
+	r.Use(middleware.RequestID) // stamps every request with a unique ID — useful for tracing errors in logs
+	r.Use(middleware.Logger)    // logs every request: method, path, status code, duration
 
 	// medicines
 	medicineRepo := repository.NewMedicineRepository(db)

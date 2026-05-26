@@ -1,17 +1,18 @@
 package main
 
 import (
-	"fmt"
+	"encoding/json"
+	"log/slog"   // structured logging — built into Go 1.21+, no extra package needed
 	"net/http"
 	"os"
 
-	"github.com/diomidispt/go-app/internal/app"    // owns all wiring — repos, services, handlers, routes
-	"github.com/diomidispt/go-app/internal/config" // opens the DB connection
-	"github.com/joho/godotenv"                      // loads .env file into environment variables
+	"github.com/diomidispt/go-app/internal/app"
+	"github.com/diomidispt/go-app/internal/config"
+	"github.com/joho/godotenv"
 )
 
 func main() {
-	godotenv.Load() // load .env — in Docker/ECS vars are already injected so this is safely ignored
+	godotenv.Load()
 
 	port := os.Getenv("PORT")
 	if port == "" {
@@ -20,24 +21,34 @@ func main() {
 
 	db, err := config.Connect()
 	if err != nil {
-		fmt.Printf("Error connecting to database: %v\n", err)
+		slog.Error("failed to connect to database", "error", err)
 		os.Exit(1)
 	}
 	defer db.Close()
-	fmt.Println("Connected to database successfully")
+	slog.Info("connected to database")
 
 	if err := config.RunMigrations(); err != nil {
-		fmt.Printf("Error running migrations: %v\n", err)
+		slog.Error("failed to run migrations", "error", err)
 		os.Exit(1)
 	}
-	fmt.Println("Migrations applied successfully")
+	slog.Info("migrations applied")
 
-	a := app.New(db) // all wiring happens inside here — main.go never needs to change again
+	a := app.New(db)
 
+	// health check — hits the DB so the load balancer knows if the app is truly healthy
 	a.Router.Get("/health", func(w http.ResponseWriter, r *http.Request) {
-		fmt.Fprintln(w, "our go application is working")
+		if err := db.Ping(); err != nil {
+			w.WriteHeader(http.StatusServiceUnavailable) // 503 — tells ALB/ECS this instance is unhealthy
+			json.NewEncoder(w).Encode(map[string]string{"status": "unhealthy", "error": err.Error()})
+			return
+		}
+		w.Header().Set("Content-Type", "application/json")
+		json.NewEncoder(w).Encode(map[string]string{"status": "healthy"})
 	})
 
-	fmt.Println("Server starting on port " + port + "...")
-	http.ListenAndServe(":"+port, a.Router)
+	slog.Info("server starting", "port", port)
+	if err := http.ListenAndServe(":"+port, a.Router); err != nil {
+		slog.Error("server failed", "error", err)
+		os.Exit(1)
+	}
 }
