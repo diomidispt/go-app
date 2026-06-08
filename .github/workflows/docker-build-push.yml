@@ -52,7 +52,7 @@ jobs:
             --exit-code 1
 
       - name: Upload Gitleaks SARIF
-        if: always()
+        if: always() && hashFiles('gitleaks.sarif') != ''
         uses: github/codeql-action/upload-sarif@c29f4eedf1fb43be1c9b9611f2e861ca03ad0008 # v3.28.16
         with:
           sarif_file: gitleaks.sarif
