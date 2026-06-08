@@ -173,3 +173,54 @@ Five files: `index.html`, `medicines.html`, `patients.html`, `prescriptions.html
 - Provision infrastructure in `terraform-sauron`: VPC, RDS, ECR, ECS Fargate, ALB
 - GitHub Actions CI/CD: build Docker image → push to ECR → deploy to ECS
 - App live on a public URL
+
+---
+
+## 09/06/2026
+
+### What we built today
+
+**ECR repository — `terraform-aws`**
+Created `envs/sauron-ecr/DioProjects-us-east-1-sauron-ecr-go-app-DEV/` using the existing ECR Terraform module. Repository name: `go-app-dev`. Lifecycle policy set to keep the last 5 images to control storage costs. IAM repo admin set to the `github-actions-ci` role in the DioProjects account (`298104300097`).
+
+**`.github/workflows/docker-build-push.yml`**
+CI/CD pipeline with two jobs:
+
+`test` job (blocks build if anything fails):
+- `go vet` — Go static analysis, catches bugs the compiler misses
+- `go test` — runs unit tests (ready for when tests are written)
+- Gitleaks — scans full git history for accidentally committed secrets
+- Trivy fs — scans `go.mod` dependencies for known CVEs (CRITICAL/HIGH, fixable only)
+
+`build-and-push` job (only runs if test passes):
+- Builds Docker image locally
+- Trivy image — scans the built image layers including Alpine OS packages
+- Pushes to ECR only if image scan is clean — tags `:sha` and `:latest`
+
+All GitHub Actions are pinned to commit SHAs (not tags) to prevent supply chain attacks. Gitleaks and Trivy are installed directly from their official GitHub Releases — no wrapper actions.
+Scan results are uploaded to the GitHub Security tab as SARIF so findings are persistent and linked to exact file/line.
+
+Triggers: push to `main` and manual dispatch (`workflow_dispatch`).
+
+**IAM role update — `terraform-aws`**
+Added `diomidispt/go-app:*` to `allowed_repos` in the `github-actions-ci` OIDC trust policy so the go-app pipeline can assume the role and push to ECR.
+
+**CVE fix — `gopkg.in/yaml.v3`**
+Trivy fs scan found `CVE-2022-28948` (HIGH) in indirect dependency `gopkg.in/yaml.v3 v3.0.0-20200313102051-9f266ea9e77c`. Crash when deserialising invalid input. Fixed by updating to `v3.0.1`.
+
+### GitHub secrets/variables required
+| Type | Name | Value |
+|---|---|---|
+| Secret | `AWS_ROLE_TO_ASSUME` | `arn:aws:iam::298104300097:role/github-actions-ci` |
+| Variable | `AWS_REGION` | `us-east-1` |
+
+### What is working
+- Docker image builds and pushes to `go-app-dev` ECR on push to main
+- Full scan pipeline passes with zero CRITICAL/HIGH CVEs
+- Findings visible in GitHub Security → Code scanning tab
+
+### Next — Phase 2 continued
+- ECS Fargate cluster + service + task definition
+- ALB in public subnets, ECS tasks in private subnets
+- RDS PostgreSQL in private subnet, credentials via Secrets Manager
+- App live on a public URL
