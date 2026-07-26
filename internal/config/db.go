@@ -20,7 +20,7 @@ func Connect() (*sql.DB, error) {
 
 	// step 2 — combine all credentials into one connection string (called a DSN — Data Source Name)
 	// this is the same concept as a connection string in .NET or a JDBC URL in Java
-	dsn := fmt.Sprintf("host=%s port=%s user=%s password=%s dbname=%s sslmode=disable",
+	dsn := fmt.Sprintf("host=%s port=%s user=%s password=%s dbname=%s sslmode=require",
 		host, port, user, password, dbname)
 
 	// step 3 — open the connection using the pgx driver

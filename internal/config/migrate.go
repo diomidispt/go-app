@@ -13,7 +13,7 @@ import (
 // called once on startup before the HTTP server starts
 func RunMigrations() error {
 	// build the database URL from environment variables — same credentials as the DB connection
-	dbURL := fmt.Sprintf("postgres://%s:%s@%s:%s/%s?sslmode=disable",
+	dbURL := fmt.Sprintf("postgres://%s:%s@%s:%s/%s?sslmode=require",
 		os.Getenv("DB_USER"),
 		os.Getenv("DB_PASSWORD"),
 		os.Getenv("DB_HOST"),
