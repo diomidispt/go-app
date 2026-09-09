@@ -64,6 +64,19 @@ jobs:
             "https://github.com/aquasecurity/trivy/releases/download/v${TRIVY_VERSION}/trivy_${TRIVY_VERSION}_Linux-64bit.tar.gz" \
             | tar -xz -C /usr/local/bin trivy
 
+      - name: Trivy dependency scan report
+        run: |
+          echo '```' >> "$GITHUB_STEP_SUMMARY"
+          trivy fs \
+            --format table \
+            --severity CRITICAL,HIGH \
+            --ignore-unfixed \
+            --scanners vuln \
+            --skip-version-check \
+            --exit-code 0 \
+            . | tee -a "$GITHUB_STEP_SUMMARY"
+          echo '```' >> "$GITHUB_STEP_SUMMARY"
+
       - name: Trivy dependency scan
         run: |
           trivy fs \
@@ -72,6 +85,7 @@ jobs:
             --severity CRITICAL,HIGH \
             --ignore-unfixed \
             --scanners vuln \
+            --skip-version-check \
             --exit-code 1 \
             .
 
@@ -121,6 +135,18 @@ jobs:
             "https://github.com/aquasecurity/trivy/releases/download/v${TRIVY_VERSION}/trivy_${TRIVY_VERSION}_Linux-64bit.tar.gz" \
             | tar -xz -C /usr/local/bin trivy
 
+      - name: Trivy image scan report
+        run: |
+          echo '```' >> "$GITHUB_STEP_SUMMARY"
+          trivy image \
+            --format table \
+            --severity CRITICAL,HIGH \
+            --ignore-unfixed \
+            --skip-version-check \
+            --exit-code 0 \
+            ${{ steps.build.outputs.image }} | tee -a "$GITHUB_STEP_SUMMARY"
+          echo '```' >> "$GITHUB_STEP_SUMMARY"
+
       - name: Trivy image scan
         run: |
           trivy image \
@@ -128,6 +154,7 @@ jobs:
             --output trivy-image.sarif \
             --severity CRITICAL,HIGH \
             --ignore-unfixed \
+            --skip-version-check \
             --exit-code 1 \
             ${{ steps.build.outputs.image }}
 
